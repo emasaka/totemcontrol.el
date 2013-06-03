@@ -3,8 +3,8 @@
 
 (require 'dbus)
 
-(defconst TOTEM-BUS-NAME "org.mpris.Totem")
-(defconst TOTEM-INTERFACE "org.freedesktop.MediaPlayer")
+(defconst TOTEM-BUS-NAME "org.gnome.Totem")
+(defconst TOTEM-INTERFACE "org.mpris.MediaPlayer2")
 (defconst TOTEM-CONTROL-PATH "/Player")
 
 (defun totem-check-running ()
