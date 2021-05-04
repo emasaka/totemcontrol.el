@@ -46,8 +46,17 @@
   (interactive)
   (totem-seek 5000000) )
 
-(global-set-key (kbd "C-.") #'totem-playpause)
-(global-set-key (kbd "C-(") #'totem-back-2sec)
-(global-set-key (kbd "C-)") #'totem-forward-2sec)
-(global-set-key (kbd "C-<") #'totem-back-5sec)
-(global-set-key (kbd "C->") #'totem-forward-5sec)
+(defvar totemcontrol-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-.") 'totem-playpause)
+    (define-key map (kbd "C-(") 'totem-back-2sec)
+    (define-key map (kbd "C-)") 'totem-forward-2sec)
+    (define-key map (kbd "C-<") 'totem-back-5sec)
+    (define-key map (kbd "C->") 'totem-forward-5sec)
+    map ))
+
+(define-minor-mode totemcontrol-mode
+  "Totemcontrol mode"
+  nil
+  " Totem"
+  totemcontrol-mode-map )
