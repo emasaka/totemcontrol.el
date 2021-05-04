@@ -9,7 +9,7 @@
 
 (defun totem-check-running ()
   (or (member TOTEM-BUS-NAME (dbus-list-known-names :session))
-      (progn (message "Error: Run Totem and enable dbus-service plugin!")
+      (progn (message "Error: Totem is not runnning or dbus-service plugin is not enabled")
 	     nil )))
 
 (defmacro totem-call-method (method &rest args)
