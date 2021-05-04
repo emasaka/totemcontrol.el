@@ -3,9 +3,9 @@
 
 (require 'dbus)
 
-(defconst TOTEM-BUS-NAME "org.gnome.Totem")
-(defconst TOTEM-INTERFACE "org.mpris.MediaPlayer2")
-(defconst TOTEM-CONTROL-PATH "/Player")
+(defconst TOTEM-BUS-NAME "org.mpris.MediaPlayer2.totem")
+(defconst TOTEM-INTERFACE "org.mpris.MediaPlayer2.Player")
+(defconst TOTEM-CONTROL-PATH "/org/mpris/MediaPlayer2")
 
 (defun totem-check-running ()
   (or (member TOTEM-BUS-NAME (dbus-list-known-names :session))
@@ -16,28 +16,28 @@
   `(dbus-call-method :session ,TOTEM-BUS-NAME ,TOTEM-CONTROL-PATH
 		     ,TOTEM-INTERFACE ,method ,@args ))
 
-(defun totem-pause ()
+(defun totem-playpause ()
   "Toggle Totem pause and resume"
   (interactive)
   (when (totem-check-running)
-    (totem-call-method "Pause") ))
+    (totem-call-method "PlayPause") ))
 
-(defun totem-back (sec)
-  (when (totem-check-running)
-    (totem-call-method
-     "PositionSet"
-     (max (- (totem-call-method "PositionGet") (* sec 1000)) 0) )))
+;; (defun totem-back (sec)
+;;   (when (totem-check-running)
+;;     (totem-call-method
+;;      "PositionSet"
+;;      (max (- (totem-call-method "PositionGet") (* sec 1000)) 0) )))
 
-(defun totem-back-2sec ()
-  "Back Totem 2 seconds"
-  (interactive)
-  (totem-back 2) )
+;; (defun totem-back-2sec ()
+;;   "Back Totem 2 seconds"
+;;   (interactive)
+;;   (totem-back 2) )
 
-(defun totem-back-5sec ()
-  "Back Totem 5 seconds"
-  (interactive)
-  (totem-back 5) )
+;; (defun totem-back-5sec ()
+;;   "Back Totem 5 seconds"
+;;   (interactive)
+;;   (totem-back 5) )
 
-(global-set-key (kbd "C-.") #'totem-pause)
-(global-set-key (kbd "C-(") #'totem-back-2sec)
-(global-set-key (kbd "C-<") #'totem-back-5sec)
+(global-set-key (kbd "C-.") #'totem-playpause)
+;; (global-set-key (kbd "C-(") #'totem-back-2sec)
+;; (global-set-key (kbd "C-<") #'totem-back-5sec)
