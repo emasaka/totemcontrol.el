@@ -22,22 +22,32 @@
   (when (totem-check-running)
     (totem-call-method "PlayPause") ))
 
-;; (defun totem-back (sec)
-;;   (when (totem-check-running)
-;;     (totem-call-method
-;;      "PositionSet"
-;;      (max (- (totem-call-method "PositionGet") (* sec 1000)) 0) )))
+(defun totem-seek (offset)
+  (when (totem-check-running)
+    (totem-call-method "Seek" offset) ))
 
-;; (defun totem-back-2sec ()
-;;   "Back Totem 2 seconds"
-;;   (interactive)
-;;   (totem-back 2) )
+(defun totem-back-2sec ()
+  "Back Totem 2 seconds"
+  (interactive)
+  (totem-seek -2000000) )
 
-;; (defun totem-back-5sec ()
-;;   "Back Totem 5 seconds"
-;;   (interactive)
-;;   (totem-back 5) )
+(defun totem-forward-2sec ()
+  "Forward Totem 2 seconds"
+  (interactive)
+  (totem-seek 2000000) )
+
+(defun totem-back-5sec ()
+  "Back Totem 5 seconds"
+  (interactive)
+  (totem-seek -5000000) )
+
+(defun totem-forward-5sec ()
+  "Forward Totem 5 seconds"
+  (interactive)
+  (totem-seek 5000000) )
 
 (global-set-key (kbd "C-.") #'totem-playpause)
-;; (global-set-key (kbd "C-(") #'totem-back-2sec)
-;; (global-set-key (kbd "C-<") #'totem-back-5sec)
+(global-set-key (kbd "C-(") #'totem-back-2sec)
+(global-set-key (kbd "C-)") #'totem-forward-2sec)
+(global-set-key (kbd "C-<") #'totem-back-5sec)
+(global-set-key (kbd "C->") #'totem-forward-5sec)
