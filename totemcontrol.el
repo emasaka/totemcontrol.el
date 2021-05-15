@@ -7,6 +7,7 @@
 (defconst TOTEM-INTERFACE "org.mpris.MediaPlayer2.Player")
 (defconst TOTEM-CONTROL-PATH "/org/mpris/MediaPlayer2")
 
+;;; functions and macros
 (defun totem-check-running ()
   (or (member TOTEM-BUS-NAME (dbus-list-known-names :session))
       (progn (message "Error: Totem is not runnning or dbus-service plugin is not enabled")
@@ -15,16 +16,17 @@
 (defmacro totem-call-method (method &rest args)
   `(dbus-call-method :session ,TOTEM-BUS-NAME ,TOTEM-CONTROL-PATH
 		     ,TOTEM-INTERFACE ,method ,@args ))
-
-(defun totem-playpause ()
-  "Toggle Totem pause and resume"
-  (interactive)
-  (when (totem-check-running)
     (totem-call-method "PlayPause") ))
 
 (defun totem-seek (offset)
   (when (totem-check-running)
     (totem-call-method "Seek" offset) ))
+
+;;; commands
+(defun totem-playpause ()
+  "Toggle Totem pause and resume"
+  (interactive)
+  (when (totem-check-running)
 
 (defun totem-back-2sec ()
   "Back Totem 2 seconds"
@@ -46,6 +48,7 @@
   (interactive)
   (totem-seek 5000000) )
 
+;;; totemcontrol-mode
 (defvar totemcontrol-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") 'totem-playpause)
@@ -56,9 +59,9 @@
     map ))
 
 (define-minor-mode totemcontrol-mode
-  "Totemcontrol mode"
-  nil
-  " Totem"
-  totemcontrol-mode-map )
+  "Totemcontrol mode"			; document
+  nil					; initianl value
+  " Totem"				; mode line string
+  totemcontrol-mode-map )		; keymap
 
 (provide 'totemcontrol)
