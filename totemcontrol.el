@@ -60,3 +60,5 @@
   nil
   " Totem"
   totemcontrol-mode-map )
+
+(provide 'totemcontrol)
