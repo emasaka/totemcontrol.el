@@ -16,7 +16,6 @@
 (defmacro totem-call-method (method &rest args)
   `(dbus-call-method :session ,TOTEM-BUS-NAME ,TOTEM-CONTROL-PATH
 		     ,TOTEM-INTERFACE ,method ,@args ))
-    (totem-call-method "PlayPause") ))
 
 (defun totem-seek (offset)
   (when (totem-check-running)
@@ -27,6 +26,7 @@
   "Toggle Totem pause and resume"
   (interactive)
   (when (totem-check-running)
+    (totem-call-method "PlayPause") ))
 
 (defun totem-back-2sec ()
   "Back Totem 2 seconds"
