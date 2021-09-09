@@ -3,19 +3,22 @@
 
 (require 'dbus)
 
+(defconst TOTEMCONTROL-INTERFACE "org.mpris.MediaPlayer2.Player")
+(defconst TOTECONTROLM-CONTROL-PATH "/org/mpris/MediaPlayer2")
+
+(defvar totemcontrol-bus-name)
 (defconst TOTEM-BUS-NAME "org.mpris.MediaPlayer2.totem")
-(defconst TOTEM-INTERFACE "org.mpris.MediaPlayer2.Player")
-(defconst TOTEM-CONTROL-PATH "/org/mpris/MediaPlayer2")
+(defconst VLC-BUS-NAME "org.mpris.MediaPlayer2.vlc")
 
 ;;; functions and macros
 (defun totem-check-running ()
-  (or (member TOTEM-BUS-NAME (dbus-list-known-names :session))
+  (or (member totemcontrol-bus-name (dbus-list-known-names :session))
       (progn (message "Error: Totem is not runnning or dbus-service plugin is not enabled")
 	     nil )))
 
 (defmacro totem-call-method (method &rest args)
-  `(dbus-call-method :session ,TOTEM-BUS-NAME ,TOTEM-CONTROL-PATH
-		     ,TOTEM-INTERFACE ,method ,@args ))
+  `(dbus-call-method :session totemcontrol-bus-name ,TOTECONTROLM-CONTROL-PATH
+		     ,TOTEMCONTROL-INTERFACE ,method ,@args ))
 
 (defun totem-seek (offset)
   (when (totem-check-running)
@@ -62,6 +65,14 @@
   "Totemcontrol mode"			; document
   nil					; initianl value
   " Totem"				; mode line string
-  totemcontrol-mode-map )		; keymap
+  totemcontrol-mode-map			; keymap
+  (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ) ; body
+
+(define-minor-mode vlccontrol-mode
+  "VLCcontrol mode"			; document
+  nil					; initianl value
+  " VLC"				; mode line string
+  totemcontrol-mode-map			; keymap
+  (setq-local totemcontrol-bus-name VLC-BUS-NAME) ) ; body
 
 (provide 'totemcontrol)
