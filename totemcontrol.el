@@ -22,7 +22,7 @@
 
 (defun totem-seek (offset)
   (when (totem-check-running)
-    (totem-call-method "Seek" offset) ))
+    (totem-call-method "Seek" :int64 offset) ))
 
 ;;; commands
 (defun totem-playpause ()
