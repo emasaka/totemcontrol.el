@@ -66,13 +66,15 @@
   nil					; initianl value
   " Totem"				; mode line string
   totemcontrol-mode-map			; keymap
-  (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ) ; body
+  (when totemcontrol-mode		; body
+    (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ))
 
 (define-minor-mode vlccontrol-mode
   "VLCcontrol mode"			; document
   nil					; initianl value
   " VLC"				; mode line string
   totemcontrol-mode-map			; keymap
-  (setq-local totemcontrol-bus-name VLC-BUS-NAME) ) ; body
+  (when vlccontrol-mode			; body
+    (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ))
 
 (provide 'totemcontrol)
