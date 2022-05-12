@@ -75,6 +75,6 @@
   " VLC"				; mode line string
   totemcontrol-mode-map			; keymap
   (when vlccontrol-mode			; body
-    (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ))
+    (setq-local totemcontrol-bus-name VLC-BUS-NAME) ))
 
 (provide 'totemcontrol)
