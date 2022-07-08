@@ -77,4 +77,25 @@
   (when vlccontrol-mode			; body
     (setq-local totemcontrol-bus-name VLC-BUS-NAME) ))
 
+;; fx-mpris-mode (just workaround)
+(defun fx-mpris-playpause ()
+  (let ((busname
+	 (car (seq-filter
+	       (lambda (x) (string-match "org\.mpris\.MediaPlayer2\.firefox" x))
+	       (dbus-list-names :session) ))))
+    (dbus-call-method :session busname "/org/mpris/MediaPlayer2" "org.mpris.MediaPlayer2.Player" "PlayPause") ))
+
+(defvar fx-mpris-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-.") 'fx-mpris-playpause)
+    map ))
+
+(define-minor-mode fx-mpris-mode
+  "Firefox MPRIS mode"			; document
+  nil					; initianl value
+  " fx-mpris"				; mode line string
+  fx-mpris-mode-map			; keymap
+  )
+
+
 (provide 'totemcontrol)
