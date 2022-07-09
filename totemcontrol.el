@@ -9,6 +9,7 @@
 (defvar totemcontrol-bus-name)
 (defconst TOTEM-BUS-NAME "org.mpris.MediaPlayer2.totem")
 (defconst VLC-BUS-NAME "org.mpris.MediaPlayer2.vlc")
+(defconst FX-MPRIS-BUS-NAME "org.mpris.MediaPlayer2.firefox")
 
 ;;; functions and macros
 (defun totem-check-running ()
@@ -78,12 +79,16 @@
     (setq-local totemcontrol-bus-name VLC-BUS-NAME) ))
 
 ;; fx-mpris-mode (just workaround)
+(defun totem-find-dbus-name (pattern)
+  (car					; workaround
+   (seq-filter (lambda (x) (string-match pattern x))
+	       (dbus-list-names :session) )))
+
 (defun fx-mpris-playpause ()
-  (let ((busname
-	 (car (seq-filter
-	       (lambda (x) (string-match "org\.mpris\.MediaPlayer2\.firefox" x))
-	       (dbus-list-names :session) ))))
-    (dbus-call-method :session busname "/org/mpris/MediaPlayer2" "org.mpris.MediaPlayer2.Player" "PlayPause") ))
+  (interactive)
+  (if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
+      (dbus-call-method :session busname TOTECONTROLM-CONTROL-PATH TOTEMCONTROL-INTERFACE "PlayPause")
+    (message "Error: player not found") ))
 
 (defvar fx-mpris-mode-map
   (let ((map (make-sparse-keymap)))
@@ -95,7 +100,7 @@
   nil					; initianl value
   " fx-mpris"				; mode line string
   fx-mpris-mode-map			; keymap
-  )
-
+  (when fx-mpris-mode			; body
+    (setq-local totemcontrol-bus-name-re (regexp-quote FX-MPRIS-BUS-NAME)) ))
 
 (provide 'totemcontrol)
