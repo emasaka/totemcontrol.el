@@ -81,14 +81,18 @@
 ;; fx-mpris-mode (just workaround)
 (defun totem-find-dbus-name (pattern)
   (car					; workaround
-   (seq-filter (lambda (x) (string-match pattern x))
+   (seq-filter (lambda (x) (string-match-p pattern x))
 	       (dbus-list-names :session) )))
+
+(defmacro fx-mpris-call-method (method &rest args)
+  `(if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
+       (dbus-call-method :session busname ,TOTECONTROLM-CONTROL-PATH
+			 ,TOTEMCONTROL-INTERFACE ,method ,@args )
+     (message "Error: player not found") ))
 
 (defun fx-mpris-playpause ()
   (interactive)
-  (if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
-      (dbus-call-method :session busname TOTECONTROLM-CONTROL-PATH TOTEMCONTROL-INTERFACE "PlayPause")
-    (message "Error: player not found") ))
+  (fx-mpris-call-method "PlayPause") )
 
 (defvar fx-mpris-mode-map
   (let ((map (make-sparse-keymap)))
