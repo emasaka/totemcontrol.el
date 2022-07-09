@@ -4,55 +4,55 @@
 (require 'dbus)
 
 (defconst TOTEMCONTROL-INTERFACE "org.mpris.MediaPlayer2.Player")
-(defconst TOTECONTROLM-CONTROL-PATH "/org/mpris/MediaPlayer2")
+(defconst TOTECONTROL-CONTROL-PATH "/org/mpris/MediaPlayer2")
 
-(defvar totemcontrol-bus-name)
+(defvar totemcontrol-bus-name-re)
 (defconst TOTEM-BUS-NAME "org.mpris.MediaPlayer2.totem")
 (defconst VLC-BUS-NAME "org.mpris.MediaPlayer2.vlc")
 (defconst FX-MPRIS-BUS-NAME "org.mpris.MediaPlayer2.firefox")
 
 ;;; functions and macros
-(defun totem-check-running ()
-  (or (member totemcontrol-bus-name (dbus-list-known-names :session))
-      (progn (message "Error: Totem is not runnning or dbus-service plugin is not enabled")
-	     nil )))
+(defun totem-find-dbus-name (pattern)
+  (car					; workaround: first bus name only
+   (seq-filter (lambda (x) (string-match-p pattern x))
+	       (dbus-list-names :session) )))
 
 (defmacro totem-call-method (method &rest args)
-  `(dbus-call-method :session totemcontrol-bus-name ,TOTECONTROLM-CONTROL-PATH
-		     ,TOTEMCONTROL-INTERFACE ,method ,@args ))
+  `(if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
+       (dbus-call-method :session busname ,TOTECONTROL-CONTROL-PATH
+			 ,TOTEMCONTROL-INTERFACE ,method ,@args )
+     (message "Error: player not found") ))
 
 (defun totem-seek (offset)
-  (when (totem-check-running)
-    (totem-call-method "Seek" :int64 offset) ))
+  (totem-call-method "Seek" :int64 offset) )
 
 ;;; commands
 (defun totem-playpause ()
-  "Toggle Totem pause and resume"
+  "Toggle pause and resume"
   (interactive)
-  (when (totem-check-running)
-    (totem-call-method "PlayPause") ))
+  (totem-call-method "PlayPause") )
 
 (defun totem-back-2sec ()
-  "Back Totem 2 seconds"
+  "Back 2 seconds"
   (interactive)
   (totem-seek -2000000) )
 
 (defun totem-forward-2sec ()
-  "Forward Totem 2 seconds"
+  "Forward 2 seconds"
   (interactive)
   (totem-seek 2000000) )
 
 (defun totem-back-5sec ()
-  "Back Totem 5 seconds"
+  "Back 5 seconds"
   (interactive)
   (totem-seek -5000000) )
 
 (defun totem-forward-5sec ()
-  "Forward Totem 5 seconds"
+  "Forward 5 seconds"
   (interactive)
   (totem-seek 5000000) )
 
-;;; totemcontrol-mode
+;;; minor modes
 (defvar totemcontrol-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-.") 'totem-playpause)
@@ -68,7 +68,7 @@
   " Totem"				; mode line string
   totemcontrol-mode-map			; keymap
   (when totemcontrol-mode		; body
-    (setq-local totemcontrol-bus-name TOTEM-BUS-NAME) ))
+    (setq-local totemcontrol-bus-name-re (regexp-quote TOTEM-BUS-NAME)) ))
 
 (define-minor-mode vlccontrol-mode
   "VLCcontrol mode"			; document
@@ -76,34 +76,13 @@
   " VLC"				; mode line string
   totemcontrol-mode-map			; keymap
   (when vlccontrol-mode			; body
-    (setq-local totemcontrol-bus-name VLC-BUS-NAME) ))
-
-;; fx-mpris-mode (just workaround)
-(defun totem-find-dbus-name (pattern)
-  (car					; workaround
-   (seq-filter (lambda (x) (string-match-p pattern x))
-	       (dbus-list-names :session) )))
-
-(defmacro fx-mpris-call-method (method &rest args)
-  `(if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
-       (dbus-call-method :session busname ,TOTECONTROLM-CONTROL-PATH
-			 ,TOTEMCONTROL-INTERFACE ,method ,@args )
-     (message "Error: player not found") ))
-
-(defun fx-mpris-playpause ()
-  (interactive)
-  (fx-mpris-call-method "PlayPause") )
-
-(defvar fx-mpris-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-.") 'fx-mpris-playpause)
-    map ))
+    (setq-local totemcontrol-bus-name-re (regexp-quote VLC-BUS-NAME)) ))
 
 (define-minor-mode fx-mpris-mode
   "Firefox MPRIS mode"			; document
   nil					; initianl value
-  " fx-mpris"				; mode line string
-  fx-mpris-mode-map			; keymap
+  " Fx-mpris"				; mode line string
+  totemcontrol-mode-map			; keymap
   (when fx-mpris-mode			; body
     (setq-local totemcontrol-bus-name-re (regexp-quote FX-MPRIS-BUS-NAME)) ))
 
