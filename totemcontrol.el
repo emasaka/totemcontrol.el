@@ -17,20 +17,24 @@
    (seq-filter (lambda (x) (string-match-p pattern x))
 	       (dbus-list-names :session) )))
 
-(defmacro totem-call-method (method &rest args)
-  `(if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
-       (dbus-call-method :session busname ,TOTECONTROL-CONTROL-PATH
-			 ,TOTEMCONTROL-INTERFACE ,method ,@args )
+(put 'with-mpris-bus-name 'lisp-indent-function 1)
+(defmacro with-mpris-bus-name (varlist &rest body)
+  `(if-let ((,(car varlist) (totem-find-dbus-name totemcontrol-bus-name-re)))
+       (progn ,@body)
      (message "Error: player not found") ))
 
+(defmacro totem-call-method (method &rest args)
+  `(with-mpris-bus-name (busname)
+     (dbus-call-method :session busname ,TOTECONTROL-CONTROL-PATH
+		       ,TOTEMCONTROL-INTERFACE ,method ,@args )))
+
 (defun totem-seek (offset)
-  (if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
-      (if (dbus-get-property :session busname TOTECONTROL-CONTROL-PATH
-			     TOTEMCONTROL-INTERFACE "CanSeek" )
-	  (dbus-call-method :session busname TOTECONTROL-CONTROL-PATH
-			    TOTEMCONTROL-INTERFACE "Seek" :int64 offset )
-	(message "Error: can't seek") )
-    (message "Error: player not found") ))
+  (with-mpris-bus-name (busname)
+    (if (dbus-get-property :session busname TOTECONTROL-CONTROL-PATH
+			   TOTEMCONTROL-INTERFACE "CanSeek" )
+	(dbus-call-method :session busname TOTECONTROL-CONTROL-PATH
+			  TOTEMCONTROL-INTERFACE "Seek" :int64 offset )
+      (message "Error: can't seek") )))
 
 ;;; commands
 (defun totem-playpause ()
