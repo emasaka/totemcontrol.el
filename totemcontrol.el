@@ -24,7 +24,13 @@
      (message "Error: player not found") ))
 
 (defun totem-seek (offset)
-  (totem-call-method "Seek" :int64 offset) )
+  (if-let ((busname (totem-find-dbus-name totemcontrol-bus-name-re)))
+      (if (dbus-get-property :session busname TOTECONTROL-CONTROL-PATH
+			     TOTEMCONTROL-INTERFACE "CanSeek" )
+	  (dbus-call-method :session busname TOTECONTROL-CONTROL-PATH
+			    TOTEMCONTROL-INTERFACE "Seek" :int64 offset )
+	(message "Error: can't seek") )
+    (message "Error: player not found") ))
 
 ;;; commands
 (defun totem-playpause ()
