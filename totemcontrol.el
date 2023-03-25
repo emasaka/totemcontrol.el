@@ -21,7 +21,7 @@
 (defmacro with-mpris-bus-name (varlist &rest body)
   `(if-let ((,(car varlist) (totem-find-dbus-name totemcontrol-bus-name-re)))
        (progn ,@body)
-     (message "Error: player not found") ))
+     (error "player not found") ))
 
 (defmacro totem-call-method (method &rest args)
   `(with-mpris-bus-name (busname)
@@ -34,7 +34,7 @@
 			   TOTEMCONTROL-INTERFACE "CanSeek" )
 	(dbus-call-method :session busname TOTECONTROL-CONTROL-PATH
 			  TOTEMCONTROL-INTERFACE "Seek" :int64 offset )
-      (message "Error: can't seek") )))
+      (error "Can't seek") )))
 
 ;;; commands
 (defun totem-playpause ()
